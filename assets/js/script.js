@@ -1,7 +1,7 @@
 var openWeatherAPIKey = "357d278b4dc1d31d59f16e3afe69a945";
 var city = "Durham";
-var citySearchResultsEl = document.querySelector('#city-search-results');
 var citySearchResultsEl = $("#city-search-results");
+var recentSearchResultsEl = $("#recent-search-results");
 
 var forecastURL = "https://api.openweathermap.org/data/2.5/forecast?lat=35.996653&lon=-78.9018053&appid=" + openWeatherAPIKey + "&units=imperial";
 var currentUrl = "https://api.openweathermap.org/data/2.5/weather?lat=35.996653&lon=-78.9018053&appid=" + openWeatherAPIKey + "&units=imperial";
@@ -23,6 +23,7 @@ function getCity() {
           console.log("latitute: " + data[0].lat)
           console.log("longitude: " + data[0].lon)
           searchDisplay(data)
+          storeCity(data)
         });
 
 }
@@ -34,14 +35,34 @@ function searchDisplay(data) {
     var citySearchHtml = "";
     for (var i=0;i<data.length;i++){
         citySearchHtml += '<article>';
-        citySearchHtml += '<p class="city" id="city-'+i+'">'+data[i].name+', '+data[i].state+'</p>';
+        citySearchHtml += '<button class="city" id="city-'+i+'-btn">'+data[i].name+', '+data[i].state+'</button>';
         citySearchHtml += '</article>';
     }
-    console.log(citySearchHtml)
-    citySearchResultsEl.html(citySearchHtml);
-
-
+    citySearchResultsEl.html(citySearchHtml)
 }
+
+function storeCity(data){
+    console.log("function to store data about the city")
+    console.log(data)
+    var singleCity = data[0]
+    localStorage.setItem( "cityData", JSON.stringify(singleCity) );
+}
+
+function loadCities() {
+    cityData = JSON.parse(localStorage.getItem("cityData"));
+    if (!cityData){
+        cityData = [];   
+    }
+    console.log("load cities", cityData);
+    updateCityList(cityData);
+}
+
+function updateCityList(data){
+    console.log("update city list");
+    console.log(data)
+    console.log(recentSearchResultsEl)
+}
+
 
 function initListeners() {
     console.log("Function to initialize the listeners")
@@ -75,5 +96,5 @@ fetch(forecastURL)
 $(function(){
     console.log("init");
     initListeners();
-    // loadcities();
+    loadCities();
 });
