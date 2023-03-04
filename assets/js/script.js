@@ -1,9 +1,12 @@
 var openWeatherAPIKey = "357d278b4dc1d31d59f16e3afe69a945";
 var city = "Durham";
+var citySearchResultsEl = document.querySelector('#city-search-results');
+var citySearchResultsEl = $("#city-search-results");
 
-var queryURL = "https://api.openweathermap.org/data/2.5/forecast?lat=35.996653&lon=-78.9018053&appid=" + openWeatherAPIKey + "&units=imperial";
+var forecastURL = "https://api.openweathermap.org/data/2.5/forecast?lat=35.996653&lon=-78.9018053&appid=" + openWeatherAPIKey + "&units=imperial";
+var currentUrl = "https://api.openweathermap.org/data/2.5/weather?lat=35.996653&lon=-78.9018053&appid=" + openWeatherAPIKey + "&units=imperial";
 
-function getLatLon() {
+function getCity() {
     console.log("Function to get Latitude and Longitude")
     fetch(
         // Explain each parameter in comments below.
@@ -19,7 +22,24 @@ function getLatLon() {
           console.log("Country: " + data[0].country)
           console.log("latitute: " + data[0].lat)
           console.log("longitude: " + data[0].lon)
+          searchDisplay(data)
         });
+
+}
+
+function searchDisplay(data) {
+    console.log("display the search results")
+    console.log(data)
+    console.log(citySearchResultsEl)
+    var citySearchHtml = "";
+    for (var i=0;i<data.length;i++){
+        citySearchHtml += '<article>';
+        citySearchHtml += '<p class="city" id="city-'+i+'">'+data[i].name+', '+data[i].state+'</p>';
+        citySearchHtml += '</article>';
+    }
+    console.log(citySearchHtml)
+    citySearchResultsEl.html(citySearchHtml);
+
 
 }
 
@@ -31,10 +51,10 @@ function initListeners() {
     }
     
     )
-    $("#city-name-btn").click(getLatLon)
+    $("#city-name-btn").click(getCity)
 }
 
-fetch(queryURL)
+fetch(forecastURL)
     .then(function (response) {
         return response.json();
     })
