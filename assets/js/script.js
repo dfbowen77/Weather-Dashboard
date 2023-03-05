@@ -6,11 +6,14 @@ var recentSearchResultsEl = $("#recent-search-results");
 var forecastURL = "https://api.openweathermap.org/data/2.5/forecast?lat=35.996653&lon=-78.9018053&appid=" + openWeatherAPIKey + "&units=imperial";
 var currentUrl = "https://api.openweathermap.org/data/2.5/weather?lat=35.996653&lon=-78.9018053&appid=" + openWeatherAPIKey + "&units=imperial";
 
-function getCity() {
+function getCity(event) {
+    event.preventDefault();
     console.log("Function to get Latitude and Longitude")
+    var cityName = $("#city-name").val();
+    console.log(cityName)
     fetch(
         // Explain each parameter in comments below.
-        'https://api.openweathermap.org/geo/1.0/direct?q=Durham&limit=5&appid=' + openWeatherAPIKey
+        'https://api.openweathermap.org/geo/1.0/direct?q='+cityName+'&limit=5&appid=' + openWeatherAPIKey
       )
         .then(function (response) {
           return response.json();
@@ -22,10 +25,48 @@ function getCity() {
           console.log("Country: " + data[0].country)
           console.log("latitute: " + data[0].lat)
           console.log("longitude: " + data[0].lon)
+
+          var cityLat = data[0].lat
+          var cityLon = data[0].lon
+
+          var forecastURL = "https://api.openweathermap.org/data/2.5/forecast?lat="+cityLat+"&lon="+cityLon+"&appid=" + openWeatherAPIKey + "&units=imperial";
+          var currentUrl = "https://api.openweathermap.org/data/2.5/weather?lat="+cityLat+"&lon="+cityLon+"&appid=" + openWeatherAPIKey + "&units=imperial";
+
           searchDisplay(data)
           storeCity(data)
+          currentWeather(currentUrl)
+          forecastWeather(forecastURL)
         });
 
+}
+
+function currentWeather(currentUrl) {
+    fetch(currentUrl)
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (data) {
+          console.log(data);
+          console.log(data.main.temp);
+          console.log(data.main.humidity);
+          console.log(data.wind.speed);
+          $("#city-details-header").text(data.name)
+          $("#current-city-temp").text("Temperature: " + data.main.temp)
+          $("#current-city-wind").text("Humidity: " + data.main.humidity)
+          $("#current-city-humid").text("Wind Speed: " + data.wind.speed)
+        });
+
+        
+}
+
+function forecastWeather(forecastUrl) {
+    fetch(forecastUrl)
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (data) {
+          console.log(data);
+        });
 }
 
 function searchDisplay(data) {
@@ -72,7 +113,7 @@ function initListeners() {
     }
     
     )
-    $("#city-name-btn").click(getCity)
+    $("#city-name-btn").on("click",getCity);
 }
 
 fetch(forecastURL)
