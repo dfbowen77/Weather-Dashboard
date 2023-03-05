@@ -2,6 +2,7 @@ var openWeatherAPIKey = "357d278b4dc1d31d59f16e3afe69a945";
 var city = "Durham";
 var citySearchResultsEl = $("#city-search-results");
 var recentSearchResultsEl = $("#recent-search-results");
+var forecastContainerEl = $("#forecast-container");
 
 var forecastURL = "https://api.openweathermap.org/data/2.5/forecast?lat=35.996653&lon=-78.9018053&appid=" + openWeatherAPIKey + "&units=imperial";
 var currentUrl = "https://api.openweathermap.org/data/2.5/weather?lat=35.996653&lon=-78.9018053&appid=" + openWeatherAPIKey + "&units=imperial";
@@ -50,10 +51,20 @@ function currentWeather(currentUrl) {
           console.log(data.main.temp);
           console.log(data.main.humidity);
           console.log(data.wind.speed);
-          $("#city-details-header").text(data.name)
-          $("#current-city-temp").text("Temperature: " + data.main.temp)
-          $("#current-city-wind").text("Humidity: " + data.main.humidity)
-          $("#current-city-humid").text("Wind Speed: " + data.wind.speed)
+          console.log(data.weather[0].icon)
+          var now = dayjs().format('MMMM D, YYYY')
+          console.log(now)
+          $("#city-details-header").text(data.name + ' (' + now + ')')
+          $("#current-city-temp").text("Temperature: " + data.main.temp + "\u00B0F")
+          $("#current-city-wind").text("Wind Speed: " + data.wind.speed + " MPH")
+          $("#current-city-humid").text("Humidity: " + data.main.humidity + "%")
+          
+          iconURL = 'http://openweathermap.org/img/w/'+ data.weather[0].icon +'.png'
+          console.log(iconURL)
+
+          var iconImage = $("<img>").attr("src", iconURL);
+          $("#city-details-header").append(iconImage)
+
         });
 
         
@@ -66,7 +77,61 @@ function forecastWeather(forecastUrl) {
         })
         .then(function (data) {
           console.log(data);
+
+          var dataList = data.list
+          console.log(dataList)
+          console.log(dataList[0])
+
+          for(var i=0;i<dataList.length; i++) {
+            var date = dataList[i].dt_txt.split(" ")[0]
+            var time = dataList[i].dt_txt.split(" ")[1]
+
+            var dateFormatted = dayjs(date).format('MMMM D, YYYY')
+            console.log(dateFormatted)
+
+            if (time === '15:00:00' && dateFormatted !== dayjs()) {
+                console.log(dateFormatted)
+                console.log(dataList[i])
+
+                var dayForecastEl = $('<section>'); 
+                // creates an id for the time schedule elements that is unique to what hour it is.  
+                dayForecastEl.attr('id', 'day-' + dateFormatted)
+
+                var dateForecastEl = $('<p>');
+                dateForecastEl.attr('id', 'day-date-' + dateFormatted) 
+                dateForecastEl.text(dateFormatted)
+
+                var iconForecastEl = $('<p>');
+                iconForecastEl.attr('id', 'day-icon-' + dateFormatted) 
+
+                var tempForecastEl = $('<p>');
+                tempForecastEl.attr('id', 'day-temp-' + dateFormatted)
+                tempForecastEl.text("Temperature: " + dataList[i].main.temp + "\u00B0F")
+
+                var windForecastEl = $('<p>');
+                windForecastEl.attr('id', 'day-wind-' + dateFormatted) 
+                windForecastEl.text("Wind Speed: " + dataList[i].wind.speed + " MPH")
+
+                var humForecastEl = $('<p>');
+                humForecastEl.attr('id', 'day-hum-' + dateFormatted) 
+                humForecastEl.text("Humidity: " + dataList[i].main.humidity + "%")
+
+                dayForecastEl.append(dateForecastEl);
+                dayForecastEl.append(tempForecastEl);
+                dayForecastEl.append(windForecastEl);
+                dayForecastEl.append(humForecastEl);
+
+                forecastContainerEl.append(dayForecastEl);
+
+                // $("#city-details-header").text(data.name + ' (' + now + ')')
+                // $("#current-city-temp").text("Temperature: " + data.main.temp + "\u00B0F")
+                // $("#current-city-wind").text("Wind Speed: " + data.wind.speed + " MPH")
+                // $("#current-city-humid").text("Humidity: " + data.main.humidity + "%")
+            }
+
+          }
         });
+    
 }
 
 function searchDisplay(data) {
