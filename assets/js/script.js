@@ -31,115 +31,132 @@ var updateCityList = function(){
     var cityListHtml = "";
     for (var i=0; i<cities.length; i++){
         cityListHtml += '<article>';
-        cityListHtml += '<p class="city-list-class">'+cities.name+'</p>';
+        cityListHtml += '<button class="city-list-class">'+cities[i].name+'</button>';
         cityListHtml += '</article>';
     }
     recentSearchResultsEl.html(cityListHtml);
+    console.log(cities[0])
 }
 
-// function getCity(cityName) {
-//     var cityName = $("#city-name").val();
-//     fetch(
-//         // Explain each parameter in comments below.
-//         'https://api.openweathermap.org/geo/1.0/direct?q='+cityName+'&limit=5&appid=' + openWeatherAPIKey
-//       )
-//         .then(function (response) {
-//           return response.json();
-//         })
-//         .then(function (data) {
+$("#recent-search-results").on("click", "button", function(event){
 
-//           var cityLat = data[0].lat
-//           var cityLon = data[0].lon
+    var recentCityName = $(this).text();
+    console.log(recentCityName)
 
-//           var forecastURL = "https://api.openweathermap.org/data/2.5/forecast?lat="+cityLat+"&lon="+cityLon+"&appid=" + openWeatherAPIKey + "&units=imperial";
-//           var currentUrl = "https://api.openweathermap.org/data/2.5/weather?lat="+cityLat+"&lon="+cityLon+"&appid=" + openWeatherAPIKey + "&units=imperial";
+    getCity(recentCityName);
 
-//         //   storeCity(cityName)
-//           currentWeather(currentUrl)
-//           forecastWeather(forecastURL)
-//         });
+});
 
-// }
+function getCity(cityName2) {
+    console.log(cityName2)
+    var cityName = $("#city-name").val();
+    console.log(cityName2)
+    console.log(cityName)
+    if (cityName != cityName2) {
+        cityName = cityName2
+    }
+    fetch(
+        // Explain each parameter in comments below.
+        'https://api.openweathermap.org/geo/1.0/direct?q='+cityName+'&limit=5&appid=' + openWeatherAPIKey
+      )
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (data) {
 
-// function currentWeather(currentUrl) {
-//     fetch(currentUrl)
-//         .then(function (response) {
-//           return response.json();
-//         })
-//         .then(function (data) {
-//           var now = dayjs().format('MMMM D, YYYY')
-//           $("#city-details-header").text(data.name + ' (' + now + ')')
-//           $("#current-city-temp").text("Temperature: " + data.main.temp + "\u00B0F")
-//           $("#current-city-wind").text("Wind Speed: " + data.wind.speed + " MPH")
-//           $("#current-city-humid").text("Humidity: " + data.main.humidity + "%")
+          var cityLat = data[0].lat
+          var cityLon = data[0].lon
+
+          var forecastURL = "https://api.openweathermap.org/data/2.5/forecast?lat="+cityLat+"&lon="+cityLon+"&appid=" + openWeatherAPIKey + "&units=imperial";
+          var currentUrl = "https://api.openweathermap.org/data/2.5/weather?lat="+cityLat+"&lon="+cityLon+"&appid=" + openWeatherAPIKey + "&units=imperial";
+
+        //   storeCity(cityName)
+          currentWeather(currentUrl)
+          forecastWeather(forecastURL)
+        });
+
+}
+
+function currentWeather(currentUrl) {
+    fetch(currentUrl)
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (data) {
+          var now = dayjs().format('MMMM D, YYYY')
+          $("#city-details-header").text(data.name + ' (' + now + ')')
+          $("#current-city-temp").text("Temperature: " + data.main.temp + "\u00B0F")
+          $("#current-city-wind").text("Wind Speed: " + data.wind.speed + " MPH")
+          $("#current-city-humid").text("Humidity: " + data.main.humidity + "%")
           
-//           iconURL = 'http://openweathermap.org/img/w/'+ data.weather[0].icon +'.png'
+          iconURL = 'http://openweathermap.org/img/w/'+ data.weather[0].icon +'.png'
 
-//           var iconImage = $("<img>").attr("src", iconURL);
-//           $("#city-details-header").append(iconImage)
+          var iconImage = $("<img>").attr("src", iconURL);
+          $("#city-details-header").append(iconImage)
 
-//         });
+        });
 
         
-// }
+}
 
-// function forecastWeather(forecastUrl) {
-//     fetch(forecastUrl)
-//         .then(function (response) {
-//           return response.json();
-//         })
-//         .then(function (data) {
+function forecastWeather(forecastUrl) {
+    $("#forecast-container").empty();
+    fetch(forecastUrl)
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (data) {
 
-//           var dataList = data.list
+          var dataList = data.list
 
-//           for(var i=0;i<dataList.length; i++) {
-//             var date = dataList[i].dt_txt.split(" ")[0]
-//             var time = dataList[i].dt_txt.split(" ")[1]
+          for(var i=0;i<dataList.length; i++) {
+            var date = dataList[i].dt_txt.split(" ")[0]
+            var time = dataList[i].dt_txt.split(" ")[1]
 
-//             var dateFormatted = dayjs(date).format('MMMM D, YYYY')
-//             var today = dayjs().format('MMMM D, YYYY')
+            var dateFormatted = dayjs(date).format('MMMM D, YYYY')
+            var today = dayjs().format('MMMM D, YYYY')
 
-//             if (time === '12:00:00' && dateFormatted != today) {
+            if (time === '12:00:00' && dateFormatted != today) {
 
-//                 var dayForecastEl = $('<section>'); 
-//                 // creates an id for the time schedule elements that is unique to what hour it is.  
-//                 dayForecastEl.attr('id', 'day-' + dateFormatted)
+                var dayForecastEl = $('<section>'); 
+                // creates an id for the time schedule elements that is unique to what hour it is.  
+                dayForecastEl.attr('id', 'day-' + dateFormatted)
 
-//                 var dateForecastEl = $('<p>');
-//                 dateForecastEl.attr('id', 'day-date-' + dateFormatted) 
-//                 dateForecastEl.text(dateFormatted)
+                var dateForecastEl = $('<p>');
+                dateForecastEl.attr('id', 'day-date-' + dateFormatted) 
+                dateForecastEl.text(dateFormatted)
 
-//                 var iconForecastEl = $('<p>');
-//                 iconURL = 'http://openweathermap.org/img/w/'+ dataList[i].weather[0].icon +'.png'
-//                 var iconImage = $("<img>").attr("src", iconURL);
-//                 iconForecastEl.attr('id', 'day-icon-' + dateFormatted) 
-//                 iconForecastEl.append(iconImage)
+                var iconForecastEl = $('<p>');
+                iconURL = 'http://openweathermap.org/img/w/'+ dataList[i].weather[0].icon +'.png'
+                var iconImage = $("<img>").attr("src", iconURL);
+                iconForecastEl.attr('id', 'day-icon-' + dateFormatted) 
+                iconForecastEl.append(iconImage)
 
-//                 var tempForecastEl = $('<p>');
-//                 tempForecastEl.attr('id', 'day-temp-' + dateFormatted)
-//                 tempForecastEl.text("Temperature: " + dataList[i].main.temp + "\u00B0F")
+                var tempForecastEl = $('<p>');
+                tempForecastEl.attr('id', 'day-temp-' + dateFormatted)
+                tempForecastEl.text("Temperature: " + dataList[i].main.temp + "\u00B0F")
 
-//                 var windForecastEl = $('<p>');
-//                 windForecastEl.attr('id', 'day-wind-' + dateFormatted) 
-//                 windForecastEl.text("Wind Speed: " + dataList[i].wind.speed + " MPH")
+                var windForecastEl = $('<p>');
+                windForecastEl.attr('id', 'day-wind-' + dateFormatted) 
+                windForecastEl.text("Wind Speed: " + dataList[i].wind.speed + " MPH")
 
-//                 var humForecastEl = $('<p>');
-//                 humForecastEl.attr('id', 'day-hum-' + dateFormatted) 
-//                 humForecastEl.text("Humidity: " + dataList[i].main.humidity + "%")
+                var humForecastEl = $('<p>');
+                humForecastEl.attr('id', 'day-hum-' + dateFormatted) 
+                humForecastEl.text("Humidity: " + dataList[i].main.humidity + "%")
 
-//                 dayForecastEl.append(dateForecastEl);
-//                 dayForecastEl.append(iconForecastEl);
-//                 dayForecastEl.append(tempForecastEl);
-//                 dayForecastEl.append(windForecastEl);
-//                 dayForecastEl.append(humForecastEl);
+                dayForecastEl.append(dateForecastEl);
+                dayForecastEl.append(iconForecastEl);
+                dayForecastEl.append(tempForecastEl);
+                dayForecastEl.append(windForecastEl);
+                dayForecastEl.append(humForecastEl);
 
-//                 forecastContainerEl.append(dayForecastEl);
-//             }
+                forecastContainerEl.append(dayForecastEl);
+            }
 
-//           }
-//         });
+          }
+        });
     
-// }
+}
 
 // function loadCities() {
 //     // id="recent-search-container"
@@ -152,15 +169,6 @@ var updateCityList = function(){
 //     $("#recent-search-container").append(citySearchList)
 //     updateCityList(cityData);
 // }
-
-$("#recent-search-container").on("click", "li", function(event){
-
-    var recentCityName = $(this).text();
-    console.log(recentCityName)
-
-    getCity(recentCityName);
-
-});
 
 function initListeners() {
     console.log("Function to initialize the listeners")
@@ -178,11 +186,11 @@ function initListeners() {
     }
     
     )
-    // $("#city-name-btn").on("click",getCity);
+    $("#city-name-btn").on("click",getCity);
 }
 
 $(function(){
     console.log("init");
     initListeners();
-    // loadCities();
+    loadCities();
 });
