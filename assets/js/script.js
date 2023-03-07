@@ -31,7 +31,7 @@ var updateCityList = function(){
     var cityListHtml = "";
     for (var i=0; i<cities.length; i++){
         cityListHtml += '<article>';
-        cityListHtml += '<button class="city-list-class">'+cities[i].name+'</button>';
+        cityListHtml += '<button class="city-list-class bg-primary text-white m-1">'+cities[i].name+'</button>';
         cityListHtml += '</article>';
     }
     recentSearchResultsEl.html(cityListHtml);
@@ -48,6 +48,8 @@ $("#recent-search-results").on("click", "button", function(event){
 });
 
 function getCity(cityName2) {
+    $("#city-details").show();
+    $("#city-forecast").show();
     console.log(cityName2)
     var cityName = $("#city-name").val();
     console.log(cityName2)
@@ -89,7 +91,7 @@ function currentWeather(currentUrl) {
           $("#current-city-wind").text("Wind Speed: " + data.wind.speed + " MPH")
           $("#current-city-humid").text("Humidity: " + data.main.humidity + "%")
           
-          iconURL = 'http://openweathermap.org/img/w/'+ data.weather[0].icon +'.png'
+          iconURL = 'https://openweathermap.org/img/w/'+ data.weather[0].icon +'.png'
 
           var iconImage = $("<img>").attr("src", iconURL);
           $("#city-details-header").append(iconImage)
@@ -121,13 +123,14 @@ function forecastWeather(forecastUrl) {
                 var dayForecastEl = $('<section>'); 
                 // creates an id for the time schedule elements that is unique to what hour it is.  
                 dayForecastEl.attr('id', 'day-' + dateFormatted)
+                dayForecastEl.attr('class', 'col-sm bg-primary text-white m-1')
 
                 var dateForecastEl = $('<p>');
                 dateForecastEl.attr('id', 'day-date-' + dateFormatted) 
                 dateForecastEl.text(dateFormatted)
 
                 var iconForecastEl = $('<p>');
-                iconURL = 'http://openweathermap.org/img/w/'+ dataList[i].weather[0].icon +'.png'
+                iconURL = 'https://openweathermap.org/img/w/'+ dataList[i].weather[0].icon +'.png'
                 var iconImage = $("<img>").attr("src", iconURL);
                 iconForecastEl.attr('id', 'day-icon-' + dateFormatted) 
                 iconForecastEl.append(iconImage)
@@ -183,14 +186,30 @@ function initListeners() {
         }
 
         addCity(newCity)
+        getCity(newCityName)
     }
     
     )
-    $("#city-name-btn").on("click",getCity);
+    // $("#city-name-btn").on("click",getCity);
+
 }
 
 $(function(){
     console.log("init");
     initListeners();
     loadCities();
+
+    var cities = JSON.parse(localStorage.getItem("cities"));
+    console.log(cities)
+     // if search history exists in local storage
+     if (cities) {
+        var lastCity = cities[0].name;  //takes last searched city from localstorage
+        console.log("testing: " + lastCity)
+        getCity(lastCity); //loads last searched city's weather
+        updateCityList();
+
+    } else {
+        $("#city-details").hide();
+        $("#city-forecast").hide();
+    }
 });
