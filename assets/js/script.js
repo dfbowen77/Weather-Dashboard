@@ -1,14 +1,16 @@
-var openWeatherAPIKey = "357d278b4dc1d31d59f16e3afe69a945";console
+var openWeatherAPIKey = "357d278b4dc1d31d59f16e3afe69a945";
 var cities = [];
 var recentSearchResultsEl = $("#recent-search-results");
 var forecastContainerEl = $("#forecast-container");
 
+// This function is called to store the city data in LocalStorage
 var storeCity = function() {
 
     console.log("save city data");
     localStorage.setItem( "cities", JSON.stringify(cities) );
 }
 
+// This function gets the city data from Local Storage, checks where it exists or not, then calls the updateCityList function
 var loadCities = function() {
     cities = JSON.parse(localStorage.getItem("cities"));
     if (!cities){
@@ -18,13 +20,15 @@ var loadCities = function() {
     updateCityList();
 }
 
-var addCity = function(newCity){
+// This function uses unshift place the city that was most recently searched for at the top of the recent search list
+var addCity = function(newCity){ 
     cities.unshift(newCity);
     console.log("add city", cities);
     updateCityList();
     storeCity();
 }
 
+// This function updates the city list and creates buttons that will allow the user to re-search recently searched cities 
 var updateCityList = function(){
     console.log("update city list");
 
@@ -38,6 +42,7 @@ var updateCityList = function(){
     console.log(cities[0])
 }
 
+// This function get the text from the recently searched city buttons and passes the text to the getCity function 
 $("#recent-search-results").on("click", "button", function(event){
 
     var recentCityName = $(this).text();
@@ -47,7 +52,9 @@ $("#recent-search-results").on("click", "button", function(event){
 
 });
 
+// The goal of this function is to get the latitude and longitude for a city, put them into URLs, and pass the URLs to the appropriate function
 function getCity(cityName2) {
+    // the next two lines are used to show the two sections of html after they were previously hidden.
     $("#city-details").show();
     $("#city-forecast").show();
     console.log(cityName2)
@@ -58,7 +65,7 @@ function getCity(cityName2) {
         cityName = cityName2
     }
     fetch(
-        // Explain each parameter in comments below.
+        // This function is used to 'fetch' data from the appropriate URL
         'https://api.openweathermap.org/geo/1.0/direct?q='+cityName+'&limit=5&appid=' + openWeatherAPIKey
       )
         .then(function (response) {
@@ -79,6 +86,7 @@ function getCity(cityName2) {
 
 }
 
+// This function uses the appropriate URL to gather current weather conditions for the selected city
 function currentWeather(currentUrl) {
     fetch(currentUrl)
         .then(function (response) {
@@ -101,6 +109,7 @@ function currentWeather(currentUrl) {
         
 }
 
+// This function uses the appropriate URL to gather the 5-day forecast for the selected city
 function forecastWeather(forecastUrl) {
     $("#forecast-container").empty();
     fetch(forecastUrl)
@@ -121,8 +130,9 @@ function forecastWeather(forecastUrl) {
             if (time === '12:00:00' && dateFormatted != today) {
 
                 var dayForecastEl = $('<section>'); 
-                // creates an id for the time schedule elements that is unique to what hour it is.  
+                // creates an id for the day forecast elements that is unique to the day.  
                 dayForecastEl.attr('id', 'day-' + dateFormatted)
+                // uses Bootstrap to format the 
                 dayForecastEl.attr('class', 'col-sm bg-primary text-white m-1')
 
                 var dateForecastEl = $('<p>');
@@ -161,18 +171,7 @@ function forecastWeather(forecastUrl) {
     
 }
 
-// function loadCities() {
-//     // id="recent-search-container"
-//     cityData = JSON.parse(localStorage.getItem("cityData"));
-//     if (!cityData){
-//         cityData = [];   
-//     }
-//     console.log("load cities", cityData);
-//     var citySearchList = $("<li>").text(cityData.name)
-//     $("#recent-search-container").append(citySearchList)
-//     updateCityList(cityData);
-// }
-
+// This function sets up the event listeners
 function initListeners() {
     console.log("Function to initialize the listeners")
     $("#city-search-form").submit(function(event){
@@ -190,10 +189,10 @@ function initListeners() {
     }
     
     )
-    // $("#city-name-btn").on("click",getCity);
-
+    
 }
 
+// This function is run when the page loads and ensures functions get run in the appropriate order
 $(function(){
     console.log("init");
     initListeners();
@@ -201,15 +200,15 @@ $(function(){
 
     var cities = JSON.parse(localStorage.getItem("cities"));
     console.log(cities)
-     // if search history exists in local storage
      if (cities) {
-        var lastCity = cities[0].name;  //takes last searched city from localstorage
+        var lastCity = cities[0].name;  
         console.log("testing: " + lastCity)
-        getCity(lastCity); //loads last searched city's weather
+        getCity(lastCity); 
         updateCityList();
 
     } else {
-        $("#city-details").hide();
+        // hides these sections of the HTML until they are needed
+        $("#city-details").hide(); 
         $("#city-forecast").hide();
     }
 });
